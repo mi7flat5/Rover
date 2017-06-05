@@ -1,5 +1,5 @@
 ## Project: Search and Sample Return
-### Writeup Template: You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
+### 
 
 ---
 
@@ -8,17 +8,9 @@
 
 **Training / Calibration**  
 
-* Download the simulator and take data in "Training Mode"
-* Test out the functions in the Jupyter Notebook provided
-* Add functions to detect obstacles and samples of interest (golden rocks)
-* Fill in the `process_image()` function with the appropriate image processing steps (perspective transform, color threshold etc.) to get from raw images to a map.  The `output_image` you create in this step should demonstrate that your mapping pipeline works.
-* Use `moviepy` to process the images in your saved dataset with the `process_image()` function.  Include the video you produce as part of your submission.
+The output video is located in the output folder in this repository. I utilized several cells in this notebook to test settings on individual photos, and to test different navigation heuristic functions, such as np.median(), np.mean() and np.max()
 
-**Autonomous Navigation / Mapping**
-
-* Fill in the `perception_step()` function within the `perception.py` script with the appropriate image processing functions to create a map and update `Rover()` data (similar to what you did with `process_image()` in the notebook). 
-* Fill in the `decision_step()` function within the `decision.py` script with conditional statements that take into consideration the outputs of the `perception_step()` in deciding how to issue throttle, brake and steering commands. 
-* Iterate on your perception and decision function until your rover does a reasonable (need to define metric) job of navigating and mapping.  
+ 
 
 [//]: # (Image References)
 
@@ -27,36 +19,23 @@
 [image3]: ./calibration_images/example_rock1.jpg 
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/916/view) Points
-### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
-
----
-### Writeup / README
-
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  
-
-You're reading it!
 
 ### Notebook Analysis
-#### 1. Run the functions provided in the notebook on test images (first with the test data provided, next on data you have recorded). Add/modify functions to allow for color selection of obstacles and rock samples.
-Here is an example of how to include an image in your writeup.
+#### 1. Running the notebook functions
+I added transalation and rotation code to their respective functions, so that pix_to world() would function correctly. For the perception function first I transformed the image coming from the rover in the perspective transform function using the source and desttination variable defined earlier in the notebook. I then defined 3 single channel images one for each feature in the environment I wanted to select out. I then applied color threshholding for each. For navigable pixels I chose to mark any pixel navigable that had a value of 155 or above in all three channels. to single out the rocks I used a combination of of filtering for upper and lower bounds in yellows.  For obstacles I chose to say that anything above a certain threshold would not be an obstacle. I used the same values as I did for navigable terrain. Anything above RGB(155,155,155) will be navigable, anything below will not be. After defining the binary truth images, I create rovercentric coordinates, which can then be converted to pixel coordinates and then added to the worldmap. 
 
-![alt text][image1]
 
-#### 1. Populate the `process_image()` function with the appropriate analysis steps to map pixels identifying navigable terrain, obstacles and rock samples into a worldmap.  Run `process_image()` on your test data using the `moviepy` functions provided to create video output of your result. 
-And another! 
-
-![alt text][image2]
 ### Autonomous Navigation and Mapping
 
-#### 1. Fill in the `perception_step()` (at the bottom of the `perception.py` script) and `decision_step()` (in `decision.py`) functions in the autonomous mapping scripts and an explanation is provided in the writeup of how and why these functions were modified as they were.
+I filled in the perception funntion for the autonomous run the same as I did in the notebook. the only difference being that I limited update of worldmap to only times when the rover is a a low degree of pitch, and roll to help maintain higher fidelity. I also extracted rock and obstacle distances and angles. After completing and tuning the perception step, the rover was satisfying requirements to pass without changing the decision function. After several unsuccesful experiments with path planning, I chose to have the rover home in on nearby rocks and chose those angles for steering when they are within a certain distance. I added the ability to get unstuck, because there are a couple rocks in the scene that hang over what the rover sees as navigable. 
+
+As it is now the rover will on most runs complete the requirements to pass, if it should fail it is usually due to picking up a rock in a strange place and getting stuck, though somewhat rare, it can usually unstick itself. This would not happen if I turn off rock collection. 
+
+I did have a system that could navigate the entire map based on predetermined world coordinates, but I felt that this was probably outside the definition of autonomous, I did this so that I could use the functionality with runtime generated pathing. 
+I tried to implement an a A-star pathing system, and was able to get it to navigate to one edge of the map, it was extremly jerky, and not really usabale. I think the problem was that I was trying to use the pixels in the worldmap, which can have values for both obstacle and navigable. To improve this I think I would need to create my own map, using the angles and distances from the perception step to identify what objects are where. I haven't yet came up with a solid scheme for doing that though. I came up with a way to triangulate object positions with this data, but it isn't very numerically robust. I loved this project, and I plan to keep thinking of ways to improve it. 
 
 
-#### 2. Launching in autonomous mode your rover can navigate and map autonomously.  Explain your results and how you might improve them in your writeup.  
+I run the rover on fantastic settings, in windowed mode, with the highest resolution. The python side typically runs around 50 FPS. 
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
-
-
-
-![alt text][image3]
 
 
